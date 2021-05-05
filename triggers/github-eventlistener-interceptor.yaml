@@ -4,18 +4,74 @@ kind: EventListener
 metadata:
   name: github-listener-interceptor
 spec:
-  serviceAccountName: tekton-triggers-github-sa
   triggers:
     - name: github-listener
       interceptors:
-        - github:
-            secretRef:
-              secretName: github-secret
-              secretKey: secretToken
-            eventTypes:
-              - pull_request
-              - push
+        - ref:
+            name: "github"
+          params:
+            - name: "secretRef"
+              value:
+                secretName: github-secret
+                secretKey: secretToken
+            - name: "eventTypes"
+              value: ["pull_request", "push"]
       bindings:
-        - ref: github-binding
+        - ref: github-pr-binding
       template:
-        name: github-template
+        ref: github-template
+  resources:
+    kubernetesResource:
+      spec:
+        template:
+          spec:
+            serviceAccountName: tekton-triggers-example-sa
+            containers:
+              - resources:
+                  requests:
+                    memory: "64Mi"
+                    cpu: "250m"
+                  limits:
+                    memory: "128Mi"
+                    cpu: "500m"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github-pr-binding
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.head_commit.id)
+    - name: gitrepositoryurl
+      value: $(body.repository.clone_url)
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: github-template
+spec:
+  params:
+    - name: gitrevision
+    - name: gitrepositoryurl
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: github-run-
+      labels:
+        tekton.dev/pipeline: build-and-deploy
+    spec:
+      pipelineRef:
+        name: build-and-deploy
+      params:
+        - name: gitUrl
+          value: $(tt.params.gitrepositoryurl)
+        - name: gitRevision
+          value: $(tt.params.gitrevision)
+      serviceAccountName: pipeline-account
+      workspaces:
+        - name: git-source
+          persistentVolumeClaim:
+            claimName: myclaim
+
