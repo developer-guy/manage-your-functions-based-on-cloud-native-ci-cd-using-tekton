@@ -4,7 +4,7 @@ metadata:
   generateName: build-pipeline-
 spec:
   pipelineRef:
-    name: build-and-deploy-pipeline
+    name: build-and-deploy
   params:
     - name: gitUrl
       value: https://github.com/developer-guy/hello-function.git

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: build-and-deploy-pipeline
+  name: build-and-deploy
 spec:
   workspaces:
     - name: git-source
@@ -14,16 +14,19 @@ spec:
       default: master
     - name: pathToContext
       description: The path to the build context, used by Kaniko - within the workspace
-      default: src
+      default: build/hello-function
     - name: pathToYamlFile
       description: The path to the yaml file to deploy within the git source
+      default: manifests/function.yaml
     - name: imageUrl
       description: Image name including repository
+      default: devopps/hello-function
     - name: imageTag
       description: Image tag
       default: "latest"
     - name: pathToFunctionDefinitionFile
       description: function definition file
+      default: hello-function.yml
   tasks:
     - name: clone-repo
       taskRef:
