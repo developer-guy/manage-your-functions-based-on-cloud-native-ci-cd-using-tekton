@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: faas-cli-build
+spec:
+  description: >-
+    This task create a build directory for the given function template by using method called shrinkwrap.
+  params:
+    - name: FAAS_CLI_IMAGE
+      default: openfaas/faas-cli:latest
+    - name: pathToFunctionDefinitionFile
+      default: ./stack.yaml
+  workspaces:
+    - name: source
+      description: Holds the context of the function template
+  steps:
+    - name: alpine-pre
+      workingDir: $(workspaces.source.path)
+      image: alpine:3.13
+      command: ["/bin/sh"]
+      args: ["-c", "ls -latr $(workspaces.source.path)"]
+    - name: faas-cli-build
+      workingDir: $(workspaces.source.path)
+      image: $(params.FAAS_CLI_IMAGE)
+      command:
+      - sh
+      - -c
+      - "cd $(workspaces.source.path) && faas-cli build -f $(params.pathToFunctionDefinitionFile) --shrinkwrap"
+    - name: alpine-after
+      workingDir: $(workspaces.source.path)
+      image: alpine:3.13
+      command: ["/bin/sh"]
+      args: ["-c", "ls -latr $(workspaces.source.path)"]
