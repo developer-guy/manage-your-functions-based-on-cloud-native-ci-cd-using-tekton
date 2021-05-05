@@ -14,11 +14,6 @@ spec:
     - name: source
       description: Holds the context of the function template
   steps:
-    - name: alpine-pre
-      workingDir: $(workspaces.source.path)
-      image: alpine:3.13
-      command: ["/bin/sh"]
-      args: ["-c", "ls -latr $(workspaces.source.path)"]
     - name: faas-cli-build
       workingDir: $(workspaces.source.path)
       image: $(params.FAAS_CLI_IMAGE)
@@ -26,8 +21,3 @@ spec:
       - sh
       - -c
       - "cd $(workspaces.source.path) && faas-cli build -f $(params.pathToFunctionDefinitionFile) --shrinkwrap"
-    - name: alpine-after
-      workingDir: $(workspaces.source.path)
-      image: alpine:3.13
-      command: ["/bin/sh"]
-      args: ["-c", "ls -latr $(workspaces.source.path)"]
