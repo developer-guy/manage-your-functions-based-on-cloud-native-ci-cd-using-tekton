@@ -74,4 +74,3 @@ spec:
         - name: git-source
           persistentVolumeClaim:
             claimName: myclaim
-

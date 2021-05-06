@@ -19,6 +19,7 @@ spec:
   steps:
     - name: update-yaml
       image: alpine
+      workingDir: $(workspaces.git-source.path)
       command: ["sed"]
       args:
         - "-i"
@@ -26,11 +27,12 @@ spec:
         - "s;__IMAGE__;$(params.imageUrl):$(params.imageTag);g"
         - "-e"
         - "s;__DIGEST__;$(params.imageDigest);g"
-        - "$(workspaces.git-source.path)/$(params.pathToYamlFile)"
+        - "$(params.pathToYamlFile)"
     - name: run-kubectl
       image: lachlanevenson/k8s-kubectl
+      workingDir: $(workspaces.git-source.path)
       command: ["kubectl"]
       args:
         - "apply"
         - "-f"
-        - "$(workspaces.git-source.path)/$(params.pathToYamlFile)"
+        - "$(params.pathToYamlFile)"

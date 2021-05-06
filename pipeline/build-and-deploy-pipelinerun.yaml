@@ -23,6 +23,4 @@ spec:
   serviceAccountName: pipeline-account
   workspaces:
     - name: git-source
-      persistentVolumeClaim:
-        claimName: myclaim
-
+      emptyDir: {}

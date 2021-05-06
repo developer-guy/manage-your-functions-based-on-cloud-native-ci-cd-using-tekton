@@ -11,13 +11,13 @@ spec:
     - name: pathToFunctionDefinitionFile
       default: ./stack.yaml
   workspaces:
-    - name: source
+    - name: git-source
       description: Holds the context of the function template
   steps:
     - name: faas-cli-build
-      workingDir: $(workspaces.source.path)
+      workingDir: $(workspaces.git-source.path)
       image: $(params.FAAS_CLI_IMAGE)
       command:
       - sh
       - -c
-      - "cd $(workspaces.source.path) && faas-cli build -f $(params.pathToFunctionDefinitionFile) --shrinkwrap"
+      - "faas-cli build -f $(params.pathToFunctionDefinitionFile) --shrinkwrap"

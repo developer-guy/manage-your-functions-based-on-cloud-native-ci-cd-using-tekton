@@ -47,7 +47,7 @@ spec:
       taskRef:
         name: faas-cli-build
       workspaces:
-        - name: source
+        - name: git-source
           workspace: git-source
       runAfter:
         - clone-repo
@@ -60,7 +60,7 @@ spec:
       runAfter:
         - shrinkwrap
       workspaces:
-        - name: source
+        - name: git-source
           workspace: git-source
       params:
         - name: CONTEXT
