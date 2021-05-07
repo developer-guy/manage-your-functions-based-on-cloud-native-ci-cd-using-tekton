@@ -2,7 +2,7 @@
 
 # Prerequisites
 
-* minikube v0.19.0
+* kind v0.10.0
 * arkade v0.7.13
 * kubectl v1.21.0
 * helm v3.5.4+g1b5edb6
@@ -13,19 +13,21 @@ Let's start with explaining a little bit what we want to achieve in this demo. W
 
 Let's start with creating a local Kubernetes cluster first.
 ```bash
-$ minikube start
-😄  minikube v1.19.0 on Darwin 10.15.7
-✨  Using the virtualbox driver based on user configuration
-👍  Starting control plane node minikube in cluster minikube
-🔥  Creating virtualbox VM (CPUs=3, Memory=8192MB, Disk=20000MB) ...
-🐳  Preparing Kubernetes v1.20.2 on Docker 20.10.4 ...
-    ▪ Generating certificates and keys ...
-    ▪ Booting up control plane ...
-    ▪ Configuring RBAC rules ...
-🔎  Verifying Kubernetes components...
-    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
-🌟  Enabled addons: storage-provisioner, default-storageclass
-🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+$ kind create cluster --name tekton --config kind-config.yaml
+Creating cluster "tekton" ...
+ ✓ Ensuring node image (kindest/node:v1.20.2) 🖼
+ ✓ Preparing nodes 📦 📦 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
+ ✓ Joining worker nodes 🚜
+Set kubectl context to "kind-tekton"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-tekton
+
+Thanks for using kind! 😊
 ```
 
 First thing we need to do is installing [OpenFaaS Operator](https://github.com/openfaas/faas-netes/blob/master/README-OPERATOR.md) in order to define functions as [Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/).
@@ -303,9 +305,57 @@ Now, as soon as we change the code in the repository, we should be able to see t
 
 ![demo](./assets/hello_function_demo.png)
 
-_Tekton_ has another great project called _Tekton Dashboard_. _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
+_Tekton_ has another great project called [Tekton Dashboard](https://github.com/tektoncd/dashboard). _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
 ```bash
 $ kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
-
+customresourcedefinition.apiextensions.k8s.io/extensions.dashboard.tekton.dev created
+serviceaccount/tekton-dashboard created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-backend created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-dashboard created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-extensions created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-pipelines created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-tenant created
+clusterrole.rbac.authorization.k8s.io/tekton-dashboard-triggers created
+clusterrolebinding.rbac.authorization.k8s.io/tekton-dashboard-backend created
+service/tekton-dashboard created
+deployment.apps/tekton-dashboard created
+rolebinding.rbac.authorization.k8s.io/tekton-dashboard-pipelines created
+rolebinding.rbac.authorization.k8s.io/tekton-dashboard-dashboard created
+rolebinding.rbac.authorization.k8s.io/tekton-dashboard-triggers created
+clusterrolebinding.rbac.authorization.k8s.io/tekton-dashboard-tenant created
+clusterrolebinding.rbac.authorization.k8s.io/tekton-dashboard-extensions created
 ```
 > To get more details about the installation of Tekton Dashboard, you can follow the [link](https://github.com/tektoncd/dashboard/blob/main/docs/install.md).
+
+You can simple access to your dashboard with running the following command:
+```bash
+$ kubectl --namespace tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
+Forwarding from 127.0.0.1:9097 -> 9097
+Forwarding from [::1]:9097 -> 9097
+
+$ open http://localhost:9097
+```
+
+You should see a screen like the following:
+
+![dashboard](./assets/dashboard.png)
+
+Finally, let's test our function, to do so, we should access the _OpenFaaS Gateway_ component.
+```bash
+$ kubectl port-forward svc/gateway -n openfaas 8081:8080
+Forwarding from 127.0.0.1:8081 -> 8080
+Forwarding from [::1]:8081 -> 8080
+
+$ httpie POST http://localhost:8081/function/hellofunction.default message="Hello World"
+HTTP/1.1 200 OK
+Content-Length: 35
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 07 May 2021 08:35:44 GMT
+X-Call-Id: 0ee19dd7-2c09-4093-9b6e-0755836afb9c
+X-Duration-Seconds: 0.004628
+X-Start-Time: 1620376544209429100
+
+Body v6: {"message": "Hello World"}
+```
+
+Tadaaaa 🎉😋✅

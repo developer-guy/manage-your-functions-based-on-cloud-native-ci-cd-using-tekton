@@ -46,10 +46,10 @@ spec:
       value: /tekton/home/.docker
     args:
     - $(params.EXTRA_ARGS)
-    - --dockerfile=$(params.DOCKERFILE)
-    - --context=$(params.CONTEXT)  # The user does not need to care the workspace and the source.
+    - --dockerfile=$(workspaces.git-source.path)/$(params.DOCKERFILE)
+    - --context=$(workspaces.git-source.path)/$(params.CONTEXT)  # The user does not need to care the workspace and the source.
     - --destination=$(params.IMAGE)
-    - --oci-layout-path=$(params.CONTEXT)/image-digest
+    - --oci-layout-path=$(workspaces.git-source.path)/$(params.CONTEXT)/image-digest
     # kaniko assumes it is running as root, which means this example fails on platforms
     # that default to run containers as random uid (like OpenShift). Adding this securityContext
     # makes it explicit that it needs to run as root.
@@ -61,7 +61,7 @@ spec:
     # output of imagedigestexport [{"key":"digest","value":"sha256:eed29..660","resourceRef":{"name":"myrepo/myimage"}}]
     command: ["/ko-app/imagedigestexporter"]
     args:
-    - -images=[{"name":"$(params.IMAGE)","type":"image","url":"$(params.IMAGE)","digest":"","OutputImageDir":"$(params.CONTEXT)/image-digest"}]
+    - -images=[{"name":"$(params.IMAGE)","type":"image","url":"$(params.IMAGE)","digest":"","OutputImageDir":"$(workspaces.git-source.path)/$(params.CONTEXT)/image-digest"}]
     - -terminationMessagePath=$(params.CONTEXT)/image-digested
     securityContext:
       runAsUser: 0
