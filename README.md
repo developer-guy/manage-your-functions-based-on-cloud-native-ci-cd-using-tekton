@@ -297,11 +297,11 @@ echo "TEKTON_TUTORIAL_SECRET_TOKEN: $TEKTON_TUTORIAL_SECRET_TOKEN"
 ```
 We defined [hello-function](https://github.com/developer-guy/hello-function/) repository as our _Source of the Truth_. So, the next step, we will define webhook for it.
 
-![webhook](./webhook.png)
+![webhook](./assets/webhook.png)
 
 Now, as soon as we change the code in the repository, we should be able to see the pipeline kick in and create the function for us.
 
-![demo](./hello_function_demo.png)
+![demo](./assets/hello_function_demo.png)
 
 _Tekton_ has another great project called _Tekton Dashboard_. _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
 ```bash
