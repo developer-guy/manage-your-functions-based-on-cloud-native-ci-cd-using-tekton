@@ -303,3 +303,9 @@ Now, as soon as we change the code in the repository, we should be able to see t
 
 ![demo](./hello_function_demo.png)
 
+_Tekton_ has another great project called _Tekton Dashboard_. _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
+```bash
+$ kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+
+```
+> To get more details about the installation of Tekton Dashboard, you can follow the [link](https://github.com/tektoncd/dashboard/blob/main/docs/install.md).
