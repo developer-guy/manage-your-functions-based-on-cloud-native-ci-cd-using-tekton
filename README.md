@@ -292,8 +292,8 @@ INFO[2021/05/07 01:07:51] Connecting to proxy  url="$WSS"
 
 Now, we are ready to create a webhook in Github and give this address to it, but before doing that, we should a create secret for the webhook.
 ```bash
-$ # create github secret                                                        
-export TEKTON_TUTORIAL_SECRET_TOKEN=${TEKTON_TUTORIAL_SECRET_TOKEN-$(head -c 24 /dev/random | base64)}
+# create github secret
+$ export TEKTON_TUTORIAL_SECRET_TOKEN=${TEKTON_TUTORIAL_SECRET_TOKEN-$(head -c 24 /dev/random | base64)}
 kubectl create secret generic github-secret --from-literal=secretToken=$TEKTON_TUTORIAL_SECRET_TOKEN
 echo "TEKTON_TUTORIAL_SECRET_TOKEN: $TEKTON_TUTORIAL_SECRET_TOKEN"
 ```
