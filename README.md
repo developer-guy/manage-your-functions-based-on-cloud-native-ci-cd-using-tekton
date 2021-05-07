@@ -1,6 +1,4 @@
-# Manage your OpenFaaS functions based on Cloud Native CICD by using Tekton + Tekton Triggers + Inlets
-
-
+# Manage your OpenFaaS functions based on Cloud Native CICD by using Tekton, Tekton Triggers, and Inlets
 
 # Prerequisites
 
@@ -30,7 +28,7 @@ $ minikube start
 🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
 ```
 
-First thing we need to do is installing _OpenFaaS Operator_ in order to define functions as _Custom Resource_.
+First thing we need to do is installing [OpenFaaS Operator](https://github.com/openfaas/faas-netes/blob/master/README-OPERATOR.md) in order to define functions as [Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/).
 
 ```bash
 $  helm repo add openfaas https://openfaas.github.io/faas-netes/
