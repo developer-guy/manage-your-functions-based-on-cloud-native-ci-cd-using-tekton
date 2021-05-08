@@ -4,7 +4,24 @@ Recently, we had to talk about how we can bring GitOps principles to management 
 
 Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event Listener --> Triggers Tekton Pipeline (installed on KinD)
 
-# Prerequisites
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Prerequisites](#prerequisites)
+- [Demo](#demo)
+- [Set up KinD cluster](#set-up-kind-cluster)
+- [Instal OpenFaaS Operator](#instal-openfaas-operator)
+- [Install Tekton and Tekton Trigger](#install-tekton-and-tekton-trigger)
+- [Give Access to Local Services](#give-access-to-local-services)
+- [Install Tekton Dashboard](#install-tekton-dashboard)
+- [Test](#test)
+- [Furtermore](#furtermore)
+- [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Prerequisites
 
 * kind v0.10.0
 * arkade v0.7.13
@@ -12,9 +29,10 @@ Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event 
 * helm v3.5.4+g1b5edb6
 * tkn v0.18.0
 
-# Demo
+## Demo
 Let's start with explaining a little bit what we want to achieve in this demo. We have a git repository that includes our function code and manifest files for the function. This repository is basically our [Source of the truth](https://en.wikipedia.org/wiki/Single_source_of_truth). We can monitor this repository for changes by    using some kind of listener that _Tekton Triggers_ provides us. Whenever we do some changes in our  git repository, _Tekton Triggers_ will kick in and create _Tekton_  pipeline for us. This pipeline will run some sequential tasks such as cloning repository, building image etc. And the result, our new function will get deployed on our cluster. There is an important detail here. To get notified by the Github for the changes about the repository, we should provide a some kind of endpoint we expose from our local environment because we will do this demo on our local machine, so, somehow, Github should be able to send events to our listener. To do so, we'll use _inlets_, a cloud native tunnel. 
 
+## Set up KinD cluster
 Let's start with creating a local Kubernetes cluster first.
 ```bash
 $ kind create cluster --name tekton --config kind-config.yaml
@@ -33,6 +51,8 @@ kubectl cluster-info --context kind-tekton
 
 Thanks for using kind! 😊
 ```
+
+## Instal OpenFaaS Operator
 
 First thing we need to do is installing [OpenFaaS Operator](https://github.com/openfaas/faas-netes/blob/master/README-OPERATOR.md) in order to define functions as [Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/).
 
@@ -115,6 +135,8 @@ NAME                     CREATED AT
 functions.openfaas.com   2021-05-06T21:39:56Z
 profiles.openfaas.com    2021-05-06T21:39:56Z
 ```
+
+## Install Tekton and Tekton Trigger
 
 Following that, we should install _Tekton_ and _Tekton Trigger_ components.
 ```bash
@@ -280,6 +302,8 @@ NAME                                              READY   STATUS    RESTARTS   A
 el-github-listener-interceptor-7bc945b898-cqd9b   1/1     Running   0          2m20s
 ```
 
+## Give Access to Local Services
+
 This is our listener Pod that I mentioned earlier, we should expose it to the internet using _inlets_. Let's do this.
 ```bash
 $ kubectl port-forward svc/el-github-listener-interceptor 8080
@@ -308,6 +332,8 @@ We defined [hello-function](https://github.com/developer-guy/hello-function/) re
 Now, as soon as we change the code in the repository, we should be able to see the pipeline kick in and create the function for us.
 
 ![demo](./assets/hello_function_demo.png)
+
+## Install Tekton Dashboard
 
 _Tekton_ has another great project called [Tekton Dashboard](https://github.com/tektoncd/dashboard). _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
 ```bash
@@ -344,6 +370,8 @@ You should see a screen like the following:
 
 ![dashboard](./assets/dashboard.png)
 
+## Test
+
 Finally, let's test our function, to do so, we should access the _OpenFaaS Gateway_ component.
 ```bash
 $ kubectl port-forward svc/gateway -n openfaas 8081:8080
@@ -363,3 +391,13 @@ Body v6: {"message": "Hello World"}
 ```
 
 Tadaaaa 🎉😋✅
+
+## Furtermore
+
+As I mentioned earlier, we can use _Tekton_ and _Tekton Trigger_ for CI Part, and we can use Argo CD for CD part. We can set up Argo CD for monitoring changes againts our git repository, so, we don't have to use deploy Task in our pipeline anymore, the only thing we have to do is updating the manifest file, and Argo CD will take care of the rest.
+
+## References
+
+* [Exploring Tekton](https://www.jetstack.io/blog/exploring-tekton/)
+* [Cloud Native CI/CD with Tekton - Laying The Foundation](https://martinheinz.dev/blog/45)
+* [The Seven Steps to build a Cloud Native CI/CD for GitHub repos using Tekton](https://blog.harbur.io/the-seven-steps-to-build-a-cloud-native-ci-cd-for-github-repos-using-tekton-31a445a3bde7)
