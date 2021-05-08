@@ -15,7 +15,7 @@ Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event 
   - [Install Tekton and Tekton Trigger](#install-tekton-and-tekton-trigger)
   - [Give Access to Local Services](#give-access-to-local-services)
   - [Install Tekton Dashboard](#install-tekton-dashboard)
-- [Test](#test)
+  - [Test](#test)
 - [Furtermore](#furtermore)
 - [References](#references)
 

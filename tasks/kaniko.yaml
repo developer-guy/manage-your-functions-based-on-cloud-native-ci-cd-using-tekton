@@ -29,21 +29,27 @@ spec:
     default: ""
   - name: BUILDER_IMAGE
     description: The image on which builds will run (default is v1.5.1)
-    default: gcr.io/kaniko-project/executor:v0.16.0
+    default: gcr.io/kaniko-project/executor:v0.17.1
   workspaces:
   - name: git-source
     description: Holds the context and docker file
   results:
   - name: IMAGE-DIGEST
     description: Digest of the image just built.
-
+  volumes:
+  - name: docker-config
+    secret:
+      secretName: regcred
+      items:
+          - key: .dockerconfigjson
+            path: config.json
   steps:
   - name: build-and-push
     workingDir: $(workspaces.git-source.path)
     image: $(params.BUILDER_IMAGE)
     env:
-    - name: DOCKER_CONFIG
-      value: /tekton/home/.docker
+    - name: "DOCKER_CONFIG"
+      value: "/tekton/home/.docker/"
     args:
     - $(params.EXTRA_ARGS)
     - --dockerfile=$(workspaces.git-source.path)/$(params.DOCKERFILE)
@@ -55,6 +61,9 @@ spec:
     # makes it explicit that it needs to run as root.
     securityContext:
       runAsUser: 0
+    volumeMounts:
+    - name: docker-config
+      mountPath: /tekton/home/.docker/
   - name: write-digest
     workingDir: $(workspaces.git-source.path)
     image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.16.2
@@ -70,4 +79,3 @@ spec:
     image: docker.io/stedolan/jq@sha256:a61ed0bca213081b64be94c5e1b402ea58bc549f457c2682a86704dd55231e09
     script: |
       cat $(params.CONTEXT)/image-digested | jq '.[0].value' -rj | tee /tekton/results/IMAGE-DIGEST
-

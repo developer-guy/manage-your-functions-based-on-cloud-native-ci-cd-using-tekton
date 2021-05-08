@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: deploy-using-kubectl
+  name: update-manifest
 spec:
   workspaces:
     - name: git-source
@@ -16,6 +16,8 @@ spec:
       default: "latest"
     - name: imageDigest
       description: Digest of the image to be used.
+    - name: argoAppName
+      default: "hello-function"
   steps:
     - name: update-yaml
       image: alpine
@@ -28,11 +30,16 @@ spec:
         - "-e"
         - "s;__DIGEST__;$(params.imageDigest);g"
         - "$(params.pathToYamlFile)"
-    - name: run-kubectl
-      image: lachlanevenson/k8s-kubectl
-      workingDir: $(workspaces.git-source.path)
-      command: ["kubectl"]
-      args:
-        - "apply"
-        - "-f"
-        - "$(params.pathToYamlFile)"
+    - name: commit-push-changes-gitops
+      image: alpine/git:v2.26.2
+      workingDir: "$(workspaces.git-source.path)"
+      script: |
+        #!/usr/bin/env sh
+        set -e
+        git config --global user.email "tekton@tekton.dev"
+        git config --global user.name "Tekton Pipeline"
+        git add .
+        git remote -v
+        git status
+        git commit -m "[tekton] updating image to $(params.imageDigest)"
+        git push origin HEAD:master

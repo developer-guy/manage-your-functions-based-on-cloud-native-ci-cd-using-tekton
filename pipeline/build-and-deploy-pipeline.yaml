@@ -69,9 +69,9 @@ spec:
           value: $(params.imageUrl):$(params.imageTag)
         - name: DOCKERFILE
           value: $(params.pathToContext)/Dockerfile
-    - name: deploy-to-cluster
+    - name: update-manifest
       taskRef:
-        name: deploy-using-kubectl
+        name: update-manifest
       workspaces:
         - name: git-source
           workspace: git-source
