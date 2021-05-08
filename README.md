@@ -1,5 +1,10 @@
 # Manage your OpenFaaS functions based on Cloud Native CICD by using Tekton, Tekton Triggers, and Inlets
 
+Recently, we had to talk about how we can bring GitOps principles to management of OpenFaaS functions. If you didn't read about yet, please consider to visit this [link](https://www.openfaas.com/blog/bring-gitops-to-your-openfaas-functions-with-argocd/) to get more details about that. Because, today, we won't do only CD (Continious Delivery), we'll add CI (Continious Integration) part to our demo by using [Tekton](https://tekton.dev). Also, we won't use [Argo CD](https://argoproj.github.io/argo-cd/) this time for implementing CD (Continious Delivery) instead we'll use _Tekton_ for that either. If you are curios about why we need [Tekton Triggers](https://tekton.dev/docs/triggers/) and [Inlets](https://docs.inlets.dev/#/get-started/quickstart-k8s-pod), let me explain this a little bit. We'll achieve this demo on our local Kubernetes environment which is [KinD](https://kind.sigs.k8s.io) in this case, and we also need to subscribe to repository events that send by Github to trigger our _Tekton Pipeline_. So we need to find a way to susbcribe those events, and this is where _Tekton Triggers_ comes into the picture. So, we said that everyhing is in local, so, we should open our local services to the internet, Github in this case, to be able Github send events to our event listener, and this is where _Inlets_, a Cloud Native Tunnel, comes in to the picture. At the end of, we will set up a chain like the following:
+
+Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event Listener --> Triggers Tekton Pipeline (installed on KinD)
+                                                                                             git-clone --> faas-cli build --shrinkwrap --> kaniko build/push image --> deploy using kubectl
+
 # Prerequisites
 
 * kind v0.10.0
