@@ -10,11 +10,11 @@ Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event 
 
 - [Prerequisites](#prerequisites)
 - [Demo](#demo)
-- [Set up KinD cluster](#set-up-kind-cluster)
-- [Instal OpenFaaS Operator](#instal-openfaas-operator)
-- [Install Tekton and Tekton Trigger](#install-tekton-and-tekton-trigger)
-- [Give Access to Local Services](#give-access-to-local-services)
-- [Install Tekton Dashboard](#install-tekton-dashboard)
+  - [Set up KinD cluster](#set-up-kind-cluster)
+  - [Instal OpenFaaS Operator](#instal-openfaas-operator)
+  - [Install Tekton and Tekton Trigger](#install-tekton-and-tekton-trigger)
+  - [Give Access to Local Services](#give-access-to-local-services)
+  - [Install Tekton Dashboard](#install-tekton-dashboard)
 - [Test](#test)
 - [Furtermore](#furtermore)
 - [References](#references)
@@ -32,7 +32,7 @@ Github W/webhook --> Send Events --> Tekton Trigger (installed on KinD)'s Event 
 ## Demo
 Let's start with explaining a little bit what we want to achieve in this demo. We have a git repository that includes our function code and manifest files for the function. This repository is basically our [Source of the truth](https://en.wikipedia.org/wiki/Single_source_of_truth). We can monitor this repository for changes by    using some kind of listener that _Tekton Triggers_ provides us. Whenever we do some changes in our  git repository, _Tekton Triggers_ will kick in and create _Tekton_  pipeline for us. This pipeline will run some sequential tasks such as cloning repository, building image etc. And the result, our new function will get deployed on our cluster. There is an important detail here. To get notified by the Github for the changes about the repository, we should provide a some kind of endpoint we expose from our local environment because we will do this demo on our local machine, so, somehow, Github should be able to send events to our listener. To do so, we'll use _inlets_, a cloud native tunnel. 
 
-## Set up KinD cluster
+### Set up KinD cluster
 Let's start with creating a local Kubernetes cluster first.
 ```bash
 $ kind create cluster --name tekton --config kind-config.yaml
@@ -52,7 +52,7 @@ kubectl cluster-info --context kind-tekton
 Thanks for using kind! 😊
 ```
 
-## Instal OpenFaaS Operator
+### Instal OpenFaaS Operator
 
 First thing we need to do is installing [OpenFaaS Operator](https://github.com/openfaas/faas-netes/blob/master/README-OPERATOR.md) in order to define functions as [Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/).
 
@@ -136,7 +136,7 @@ functions.openfaas.com   2021-05-06T21:39:56Z
 profiles.openfaas.com    2021-05-06T21:39:56Z
 ```
 
-## Install Tekton and Tekton Trigger
+### Install Tekton and Tekton Trigger
 
 Following that, we should install _Tekton_ and _Tekton Trigger_ components.
 ```bash
@@ -302,7 +302,7 @@ NAME                                              READY   STATUS    RESTARTS   A
 el-github-listener-interceptor-7bc945b898-cqd9b   1/1     Running   0          2m20s
 ```
 
-## Give Access to Local Services
+### Give Access to Local Services
 
 This is our listener Pod that I mentioned earlier, we should expose it to the internet using _inlets_. Let's do this.
 ```bash
@@ -333,7 +333,7 @@ Now, as soon as we change the code in the repository, we should be able to see t
 
 ![demo](./assets/hello_function_demo.png)
 
-## Install Tekton Dashboard
+### Install Tekton Dashboard
 
 _Tekton_ has another great project called [Tekton Dashboard](https://github.com/tektoncd/dashboard). _Tekton Dashboard_ is a general purpose, web-based UI for Tekton Pipelines and Tekton triggers resources. We can easily install this to our cluster and see what's goin' on our cluster. Run the following command to install Tekton Dashboard and its dependencies:
 ```bash
