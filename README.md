@@ -370,7 +370,7 @@ You should see a screen like the following:
 
 ![dashboard](./assets/dashboard.png)
 
-## Test
+### Test
 
 Finally, let's test our function, to do so, we should access the _OpenFaaS Gateway_ component.
 ```bash
